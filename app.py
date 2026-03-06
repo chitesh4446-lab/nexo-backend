@@ -1,13 +1,12 @@
 from fastapi import FastAPI, File, UploadFile
-from fastapi.responses import StreamingResponse
+from fastapi.responses import Response
 from fastapi.middleware.cors import CORSMiddleware
-import requests
+from rembg import remove  # <-- YEH HAI AAPKA KHUD KA AI ENGINE
 import io
-import os
 
 app = FastAPI()
 
-# 1. CORS Setup (Yeh perfect hai)
+# CORS Setup (Frontend ko block hone se rokne ke liye)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"], 
@@ -16,28 +15,22 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-REMOVE_BG_API_KEY = os.getenv("API_KEY")
-
 @app.get("/")
 def home():
-    return {"message": "Nexo Backend is Running perfectly!"}
+    return {"message": "Nexo 100% Own AI Backend is Running!"}
 
 @app.post("/remove-bg")
 async def remove_bg(file: UploadFile = File(...)):
-    img = await file.read()
-    
-    # YAHAN FIX KIYA HAI: Remove.bg ko file ka naam aur type batana zaroori hai
-    res = requests.post(
-        "https://api.remove.bg/v1.0/removebg",
-        files={"image_file": ("image.png", img, "image/png")}, # <-- YEH LINE CHANGE HUI HAI
-        headers={"X-Api-Key": REMOVE_BG_API_KEY},
-        data={"size": "auto"},
-    )
-    
-    if res.status_code != 200:
-        return {"error": f"API Error: {res.text}"}
+    try:
+        # 1. Frontend se aayi hui photo ko read karo
+        input_image = await file.read()
         
-    return StreamingResponse(
-        io.BytesIO(res.content),
-        media_type="image/png"
-    )
+        # 2. AAPKA KHUD KA AI yahan background remove kar raha hai!
+        output_image = remove(input_image)
+        
+        # 3. Transparent photo wapas frontend ko bhej do
+        return Response(content=output_image, media_type="image/png")
+    
+    except Exception as e:
+        return {"error": str(e)}
+        
