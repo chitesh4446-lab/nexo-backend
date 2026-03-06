@@ -1,8 +1,7 @@
 from fastapi import FastAPI, File, UploadFile
 from fastapi.responses import Response
 from fastapi.middleware.cors import CORSMiddleware
-from rembg import remove  # <-- YEH HAI AAPKA KHUD KA AI ENGINE
-import io
+from rembg import remove  # <-- YEH HAI AAPKA APNA FREE AI ENGINE!
 
 app = FastAPI()
 
@@ -17,15 +16,15 @@ app.add_middleware(
 
 @app.get("/")
 def home():
-    return {"message": "Nexo 100% Own AI Backend is Running!"}
+    return {"message": "Nexo 100% Free AI Backend is Running!"}
 
 @app.post("/remove-bg")
 async def remove_bg(file: UploadFile = File(...)):
     try:
-        # 1. Frontend se aayi hui photo ko read karo
+        # 1. Frontend se aayi photo ko read karna
         input_image = await file.read()
         
-        # 2. AAPKA KHUD KA AI yahan background remove kar raha hai!
+        # 2. AAPKA KHUD KA AI yahan background remove kar raha hai (No API!)
         output_image = remove(input_image)
         
         # 3. Transparent photo wapas frontend ko bhej do
